@@ -1,6 +1,8 @@
 import hashlib  # allows to create hash
+import time
 
 import geckodriver_autoinstaller
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from selenium import webdriver
 
@@ -28,9 +30,16 @@ class FunctionalTestCase(TestCase):
     # testing that the correct hash is returned if the user enters 'hello'
     def test_hash_of_hello(self):
         self.browser.get('http://127.0.0.1:8000')
-        text = self.browser.find_element_by_id('id_test')  # find html id
-        text.send_key('hello')  # simulate the user entering text 'hello'
+        text = self.browser.find_element_by_id('id_text')  # find html id
+        text.send_keys('hello')  # simulate the user entering text 'hello'
         self.browser.find_element_by_name('submit').click()
+        self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', self.browser.page_source)
+
+    # waiting
+    def test_hash_ajax(self):
+        self.browser.get('http://127.0.0.1:8000')
+        self.browser.find_element_by_id('id_text').send_keys('hello')
+        time.sleep(5)  # wait for AJAX
         self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', self.browser.page_source)
 
     def tearDown(self):  # close the browser automatically
@@ -71,3 +80,12 @@ class UnitTestCase(TestCase):
         test_hash = self.saveHash()
         response = self.client.get('/hash/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
         self.assertContains(response, 'hello')  # find 'hello' string in the request
+
+    # validation is working correctly, bad hash raises error
+    def test_bad_hash(self):
+        def badHash():
+            hash = Hash()
+            hash.hash = 'xxx24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+            hash.full_clean()
+
+        self.assertRaises(ValidationError, badHash)
