@@ -1,5 +1,4 @@
 <form action="{% url 'home' %}" method="post">
-    {# needed for forms #}
     {% csrf_token %}
     {{ form.as_p }} {# display for as paragraph tag #}
     <input name="submit" type="submit" value="Hash">

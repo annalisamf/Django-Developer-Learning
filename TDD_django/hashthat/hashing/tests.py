@@ -52,10 +52,22 @@ class UnitTestCase(TestCase):
         text_hash = hashlib.sha256('hello'.encode('utf-8')).hexdigest()
         self.assertEqual('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', text_hash)
 
-    def test_hash_object(self):
+    # saving in a separate function to avoid repetition
+    def saveHash(self):
         test_hash = Hash()  # create an object
         test_hash.text = 'hello'  # add some value
         test_hash.hash = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
         test_hash.save()  # save to the DB
+        return test_hash
+
+    # testing user input
+    def test_hash_object(self):
+        test_hash = self.saveHash()
         pulled_hash = Hash.objects.get(hash='2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
         self.assertEqual(test_hash.text, pulled_hash.text)
+
+    # user can see the relevant hash
+    def test_viewing_hash(self):
+        test_hash = self.saveHash()
+        response = self.client.get('/hash/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
+        self.assertContains(response, 'hello')  # find 'hello' string in the request
