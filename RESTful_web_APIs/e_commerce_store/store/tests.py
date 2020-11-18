@@ -49,3 +49,33 @@ class ProductDestroyTestCase(APITestCase):
             Product.DoesNotExist,
             Product.objects.get, id=product_id,
         )
+
+# test for a list of products
+class ProductListTestCase(APITestCase):
+    def test_list_products(self):
+        products_count = Product.objects.count()
+        response = self.client.get('/api/v1/products/')
+        # all the pagination fields exists
+        self.assertIsNone(response.data['next'])
+        self.assertIsNone(response.data['previous'])
+        # number of products is correct
+        self.assertEqual(response.data['count'], products_count)
+        self.assertEqual(len(response.data['results']), products_count)
+
+# testing updating products
+class ProductUpdateTestCase(APITestCase):
+    def test_update_product(self):
+        product = Product.objects.first()
+        response = self.client.patch(
+            '/api/v1/products/{}/'.format(product.id),
+            {
+                'name': 'New Product',
+                'description': 'Awesome product',
+                'price': 123.45,
+            },
+            format='json',
+        )
+        # retrieving the updated product from the DB
+        updated = Product.objects.get(id=product.id)
+        # checking that the name has been updated
+        self.assertEqual(updated.name, 'New Product')
