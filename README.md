@@ -7,6 +7,6 @@ This repository contains projects from "[Become a Django Developer](https://www.
   * **Building a Personal Portfolio with Django**
   * **[Test-Driven Development in Django](https://github.com/annalisamf/Django-Developer-Learning/tree/main/TDD_django/hashthat)**
     * Using Selenium and geckodriver to test a Django web app which generate the SHA256 hash of any string 
-  * **Building RESTful Web APIs with Django**
+  * **[Building RESTful Web APIs with Django](https://github.com/annalisamf/Django-Developer-Learning/tree/main/RESTful_web_APIs/store/migrations)**
   * **Deploying Django Apps: Make Your Site Go Live**
 
