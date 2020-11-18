@@ -23,15 +23,27 @@ class ProductSerializer(serializers.ModelSerializer):
         help_text='Accepted format is "12:01 PM 1 March 2020"',
         style={'input_type': 'text', 'placeholder': '12:01 PM 1 March 2020'}
     )
+    photo = serializers.ImageField(default=None)
+    warranty = serializers.FileField(write_only=True, default=None)
 
     class Meta:
         model = Product
         fields = (
-            'id', 'name', 'description', 'price', 'sale_start', 'sale_end', 'is_on_sale', 'current_price', 'cart_items')
+            'id', 'name', 'description', 'price', 'sale_start', 'sale_end', 'is_on_sale', 'current_price', 'cart_items',
+            'photo', 'warranty')
 
     def get_cart_items(self, instance):
         items = ShoppingCartItem.objects.filter(product=instance)
         return CartItemSerializer(items, many=True).data
+
+    def update(self, instance, validated_data):
+        if validated_data.get('warranty', None):
+            # add the warranty to the description of product
+            instance.description += '\n\nWarranty'
+            instance.description+= b'; '.join(
+                validated_data['warranty'].readlines()
+            ).decode()
+        return instance
 
     # this has been replaced by the serializer fields above
     # def to_representation(self, instance):
@@ -40,3 +52,11 @@ class ProductSerializer(serializers.ModelSerializer):
     #     data['is_on_sale'] = instance.is_on_sale()
     #     data['current_price'] = instance.current_price()
     #     return data
+
+
+class ProductStatSerializer(serializers.Serializer):
+    stats = serializers.DictField(
+        child=serializers.ListField(
+            child=serializers.IntegerField(),
+        )
+    )
