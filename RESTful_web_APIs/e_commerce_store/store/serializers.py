@@ -17,11 +17,21 @@ class ProductSerializer(serializers.ModelSerializer):
     description = serializers.CharField(min_length=2, max_length=200)
     cart_items = serializers.SerializerMethodField()
     # price = serializers.FloatField(min_value=1.00, max_value=100000)
-    price = serializers.DecimalField(min_value=1.00, max_value=100000, max_digits=None, decimal_places=2)
+    price = serializers.DecimalField(
+        min_value=1.00, max_value=100000,
+        max_digits=None, decimal_places=2,
+    )
     sale_start = serializers.DateTimeField(
+        required=False,
         input_formats=['%I:%M %p %d %B %Y'], format=None, allow_null=True,
         help_text='Accepted format is "12:01 PM 1 March 2020"',
-        style={'input_type': 'text', 'placeholder': '12:01 PM 1 March 2020'}
+        style={'input_type': 'text', 'placeholder': '12:01 AM 28 July 2019'},
+    )
+    sale_end = serializers.DateTimeField(
+        required=False,
+        input_formats=['%I:%M %p %d %B %Y'], format=None, allow_null=True,
+        help_text='Accepted format is "12:01 PM 1 March 2020"',
+        style={'input_type': 'text', 'placeholder': '12:01 AM 28 July 2019'},
     )
     photo = serializers.ImageField(default=None)
     warranty = serializers.FileField(write_only=True, default=None)
@@ -38,20 +48,16 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if validated_data.get('warranty', None):
-            # add the warranty to the description of product
-            instance.description += '\n\nWarranty'
-            instance.description+= b'; '.join(
+            instance.description += '\n\nWarranty Information:\n'
+            instance.description += b'; '.join(
                 validated_data['warranty'].readlines()
             ).decode()
         return instance
 
-    # this has been replaced by the serializer fields above
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     # adding extra fields
-    #     data['is_on_sale'] = instance.is_on_sale()
-    #     data['current_price'] = instance.current_price()
-    #     return data
+    def create(self, validated_data):
+        # remove warranty from the validated data
+        validated_data.pop('warranty')
+        return Product.objects.create(**validated_data)
 
 
 class ProductStatSerializer(serializers.Serializer):
