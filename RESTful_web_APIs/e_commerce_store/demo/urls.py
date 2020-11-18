@@ -14,7 +14,7 @@ urlpatterns = [
                   # creating product through the ProductCreate APIView
                   path('api/v1/products/new', store.api_views.ProductCreate.as_view()),
                   # destroying the product
-                  path('api/v1/products/<int:id>/destroy', store.api_views.ProductDestroy.as_view()),
+                  path('api/v1/products/<int:id>/', store.api_views.ProductRetrieveUpdateDestroy.as_view()),
 
                   path('admin/', admin.site.urls),
                   path('products/<int:id>/', store.views.show, name='show-product'),
