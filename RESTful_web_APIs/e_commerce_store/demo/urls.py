@@ -8,7 +8,7 @@ import store.views
 
 urlpatterns = [
                   # connect the ListApiView to a route
-                  # allows to sent get request and get back a JSON response
+                  # allows to sent get request to the API view and get back a JSON response
                   path('api/v1/products/', store.api_views.ProductList.as_view()),
 
                   # creating product through the ProductCreate APIView
